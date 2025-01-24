@@ -13,7 +13,6 @@ public class BubblePanel extends JPanel {
         this.isUser = isUser;
 
         setLayout(new BorderLayout());
-        setOpaque(false); // 设置透明背景
 
         // 使用 JTextArea 支持多行文本
         JTextArea textArea = new JTextArea(text);
