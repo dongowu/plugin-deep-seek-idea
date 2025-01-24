@@ -49,31 +49,85 @@ public class MyToolWindow implements ToolWindowFactory {
         // 清空父面板
         parentPanel.removeAll();
 
-        // 创建一个面板，用于放置 API Key 输入框和验证按钮
-        JPanel apiKeyPanel = new JPanel();
-        apiKeyPanel.setLayout(new BoxLayout(apiKeyPanel, BoxLayout.Y_AXIS));
-        apiKeyPanel.setAlignmentX(Component.CENTER_ALIGNMENT); // 居中
+        // 创建一个主面板，使用 GridBagLayout 布局
+        JPanel apiKeyPanel = new JPanel(new GridBagLayout());
+        apiKeyPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // 添加内边距
+
+        // 设置 GridBagConstraints
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10); // 设置组件间距
+        gbc.fill = GridBagConstraints.HORIZONTAL; // 组件水平填充
+        gbc.anchor = GridBagConstraints.CENTER; // 组件居中
+
+        // 加载 logo.png
+        // 加载 logo.png
+        URL logoUrl = getClass().getResource("/logo.png"); // 从 resources 目录加载
+        if (logoUrl != null) {
+            // 加载原始图片
+            ImageIcon originalIcon = new ImageIcon(logoUrl);
+            Image originalImage = originalIcon.getImage();
+
+            // 原始图片的宽度和高度
+            int originalWidth = originalIcon.getIconWidth();
+            int originalHeight = originalIcon.getIconHeight();
+
+            // 目标宽度
+            int targetWidth = 200; // 设置目标宽度
+            // 根据目标宽度计算目标高度（保持宽高比）
+            int targetHeight = (int) ((double) originalHeight / originalWidth * targetWidth);
+
+            // 缩放图片
+            Image scaledImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+
+            // 将缩放后的图片包装为 ImageIcon
+            ImageIcon logoIcon = new ImageIcon(scaledImage);
+
+            // 创建 JLabel 并添加到面板
+            JLabel logoLabel = new JLabel(logoIcon);
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.gridwidth = 2; // 跨两列
+            gbc.anchor = GridBagConstraints.CENTER; // 居中
+            apiKeyPanel.add(logoLabel, gbc);
+        } else {
+            // 如果找不到 logo，显示提示信息
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.gridwidth = 2;
+            apiKeyPanel.add(new JBLabel("Logo not found!"), gbc);
+        }
 
         // 添加标题
         JBLabel titleLabel = new JBLabel("DeepSeek API Key Verification");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18)); // 设置字体
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        apiKeyPanel.add(titleLabel);
-        apiKeyPanel.add(Box.createRigidArea(new Dimension(0, 10))); // 添加间距
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        apiKeyPanel.add(titleLabel, gbc);
 
         // 添加 API Key 输入框
-        JBTextArea apiKeyField = new JBTextArea();
-        apiKeyField.setMaximumSize(new Dimension(300, 30)); // 设置输入框大小
-        apiKeyField.setAlignmentX(Component.CENTER_ALIGNMENT);
-        apiKeyPanel.add(new JBLabel("API Key:"));
-        apiKeyPanel.add(new JBScrollPane(apiKeyField));
-        apiKeyPanel.add(Box.createRigidArea(new Dimension(0, 20))); // 添加间距
+        JTextField apiKeyField = new JTextField();
+        apiKeyField.setPreferredSize(new Dimension(300, 40)); // 设置输入框大小
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        apiKeyPanel.add(apiKeyField, gbc);
 
         // 添加验证按钮
-        JButton verifyButton = new JButton("Verify API Key");
-        verifyButton.setBackground(new Color(0, 120, 215)); // 设置按钮背景色
-        verifyButton.setForeground(Color.WHITE); // 设置按钮文字颜色
-        verifyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton verifyButton = new JButton("Verify");
+        verifyButton.setPreferredSize(new Dimension(100, 40)); // 设置按钮大小
+        verifyButton.setBackground(new Color(0, 120, 215)); // 按钮背景色
+        verifyButton.setForeground(Color.WHITE); // 按钮文字颜色
+        verifyButton.setFocusPainted(false); // 移除焦点边框
+        verifyButton.setFont(new Font("Arial", Font.BOLD, 14)); // 设置字体
+        verifyButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0, 120, 215), 2, true), // 圆角边框
+                BorderFactory.createEmptyBorder(5, 15, 5, 15) // 内边距
+        ));
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        apiKeyPanel.add(verifyButton, gbc);
 
         // 添加按钮点击事件
         verifyButton.addActionListener(new ActionListener() {
@@ -89,14 +143,12 @@ public class MyToolWindow implements ToolWindowFactory {
                 }
             }
         });
-        apiKeyPanel.add(verifyButton);
 
-        // 将 API Key 面板添加到父面板
+        // 将主面板添加到父面板
         parentPanel.add(apiKeyPanel, BorderLayout.CENTER);
         parentPanel.revalidate();
         parentPanel.repaint();
     }
-
     /**
      * 显示聊天界面
      *
@@ -117,42 +169,59 @@ public class MyToolWindow implements ToolWindowFactory {
         chatTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         chatPanel.add(chatTitleLabel, BorderLayout.NORTH);
 
-        // 添加聊天记录区域
-        JBTextArea chatArea = new JBTextArea();
-        chatArea.setEditable(false);
-        chatArea.setLineWrap(true);
-        chatArea.setWrapStyleWord(true);
+        // 创建聊天区域
+        JPanel chatArea = new JPanel();
+        chatArea.setLayout(new BoxLayout(chatArea, BoxLayout.Y_AXIS));
+        chatArea.setBackground(new Color(240, 240, 240));
+
+        // 将聊天区域包裹在一个滚动面板中
         JBScrollPane chatScrollPane = new JBScrollPane(chatArea);
+        chatScrollPane.setBorder(BorderFactory.createEmptyBorder());
         chatPanel.add(chatScrollPane, BorderLayout.CENTER);
 
-        // 添加输入框和发送按钮
+        // 添加初始提示消息
+        addMessageBubble(chatArea, "DeepSeek Assistant", "你好，我是 DeepSeek 助理，输入你的问题吧。", false);
+
+        // 创建输入面板
         JPanel inputPanel = new JPanel(new BorderLayout());
-        JBTextArea inputField = new JBTextArea();
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JTextArea inputField = new JTextArea();
         inputField.setLineWrap(true);
         inputField.setWrapStyleWord(true);
+        inputField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+
         JBScrollPane inputScrollPane = new JBScrollPane(inputField);
-        inputScrollPane.setPreferredSize(new Dimension(300, 80)); // 设置输入框大小
+        inputScrollPane.setPreferredSize(new Dimension(300, 80));
+
         JButton sendButton = new JButton("Send");
+        sendButton.setBackground(new Color(0, 120, 215));
+        sendButton.setForeground(Color.WHITE);
+        sendButton.setFocusPainted(false);
+        sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        sendButton.setPreferredSize(new Dimension(100, 35));
+
         inputPanel.add(inputScrollPane, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
 
         // 添加发送按钮点击事件
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String message = inputField.getText();
-                if (!message.isEmpty()) {
-                    // 显示用户消息
-                    chatArea.append("You: " + message + "\n");
+        sendButton.addActionListener(e -> {
+            String message = inputField.getText().trim();
+            if (!message.isEmpty()) {
+                // 添加用户消息气泡
+                addMessageBubble(chatArea, "You", message, true);
 
-                    // 调用 DeepSeek API 获取回复
-                    getDeepSeekReplyAsync(apiKey, message, null, chatArea);
+                // 调用 DeepSeek API 获取回复
+                getDeepSeekReplyAsync(apiKey, message, null, chatArea);
 
-                    // 清空输入框
-                    inputField.setText("");
-                }
+                // 清空输入框
+                inputField.setText("");
             }
         });
+
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
         // 将聊天面板添加到父面板
@@ -161,6 +230,26 @@ public class MyToolWindow implements ToolWindowFactory {
         parentPanel.repaint();
     }
 
+    private void addMessageBubble(JPanel chatArea, String sender, String message, boolean isUser) {
+        BubblePanel bubble = new BubblePanel(message, isUser);
+
+        // 设置气泡对齐方式
+        if (isUser) {
+            bubble.setAlignmentX(Component.LEFT_ALIGNMENT); // 用户消息右对齐
+        } else {
+            bubble.setAlignmentX(Component.RIGHT_ALIGNMENT); // 助手消息左对齐
+        }
+
+        chatArea.add(bubble);
+        chatArea.add(Box.createRigidArea(new Dimension(0, 10))); // 添加间距
+
+        chatArea.revalidate();
+        chatArea.repaint();
+
+        // 滚动到底部
+        JScrollBar verticalScrollBar = ((JBScrollPane) chatArea.getParent().getParent()).getVerticalScrollBar();
+        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+    }
     /**
      * 验证 API Key
      *
@@ -312,12 +401,14 @@ public class MyToolWindow implements ToolWindowFactory {
     }
 
 
-    private void getDeepSeekReplyAsync(String apiKey, String message, Project project, JBTextArea chatArea) {
+    private void getDeepSeekReplyAsync(String apiKey, String message, Project project, JPanel chatArea) {
         new Task.Backgroundable(project, "Getting DeepSeek Reply", false) {
             @Override
             public void run(@NotNull com.intellij.openapi.progress.ProgressIndicator indicator) {
                 String reply = getDeepSeekReply(apiKey, message);
-                SwingUtilities.invokeLater(() -> chatArea.append("DeepSeek: " + reply + "\n"));
+                SwingUtilities.invokeLater(() -> {
+                    addMessageBubble(chatArea, "DeepSeek Assistant", reply, false); // 添加助手消息气泡
+                });
             }
         }.queue();
     }
