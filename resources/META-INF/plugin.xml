@@ -1,0 +1,61 @@
+<idea-plugin>
+  <!-- 插件名称，别人在官方插件库搜索你的插件时使用的名称 -->
+  <name>MyPlugin</name>
+  <!-- 插件唯一id，不能和其他插件项目重复，所以推荐使用com.xxx.xxx的格式
+       插件不同版本之间不能更改，若没有指定，则与插件名称相同 -->
+  <id>com.example.plugin.myplugin</id>
+  <!-- 插件的描述 -->
+  <description>my wrrrrrwrrrwrwwrwrwrfewfesdfsdfsdfsfsdfsd description</description>
+  <!-- 插件版本变更信息，支持HTML标签；
+       将展示在 settings | Plugins 对话框和插件仓库的Web页面 -->
+<!--  <change-notes>Initial release of the </change-notes>-->
+  <!-- 插件版本 -->
+  <version>1.0</version>
+  <!-- 供应商主页和email-->
+  <vendor url="http://www.jetbrains.com" email="support@jetbrains.com" />
+  <!-- 插件所依赖的其他插件的id -->
+<!--  <depends>MyFirstPlugin</depends>-->
+  <!-- 插件兼容IDEA的最大和最小 build 号，两个属性可以任选一个或者同时使用
+       官网详细介绍：http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html-->
+<!--  <idea-version since-build="3000" until-build="3999"/>-->
+  <!-- application components -->
+<!--  <application-components>-->
+<!--    <component>-->
+<!--      &lt;!&ndash; 组件接口 &ndash;&gt;-->
+<!--      <interface-class>com.plugin.demo.Component1Interface</interface-class>-->
+<!--      &lt;!&ndash; 组件的实现类 &ndash;&gt;-->
+<!--      <implementation-class>com.plugin.demo.impl.Component1Impl</implementation-class>-->
+<!--    </component>-->
+<!--  </application-components>-->
+  <!-- project components -->
+<!--  <project-components>-->
+<!--    <component>-->
+<!--      &lt;!&ndash; 接口和实现类相同 &ndash;&gt;-->
+<!--      <interface-class>com.plugin.demo.impl.Component2</interface-class>-->
+<!--    </component>-->
+<!--  </project-components>-->
+<!--  &lt;!&ndash; module components &ndash;&gt;-->
+<!--  <module-components>-->
+<!--    <component>-->
+<!--      <interface-class>com.plugin.demo.impl.Component3</interface-class>-->
+<!--    </component>-->
+<!--  </module-components>-->
+  <!-- Actions -->
+  <actions>
+    <action id="org.example.MyAction.1" class="org.example.MyAction" text="deepseek">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+    </action>
+
+  </actions>
+  <!-- 插件定义的扩展点，以供其他插件扩展该插件 -->
+  <extensionPoints>
+    ...
+  </extensionPoints>
+  <!-- 声明该插件对IDEA core或其他插件的扩展 -->
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- 注册 Tool Window -->
+    <toolWindow id="LoginToolWindow" anchor="right" factoryClass="org.example.MyToolWindow"/>
+  </extensions>
+</idea-plugin>
+
+
